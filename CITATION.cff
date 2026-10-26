@@ -1,0 +1,28 @@
+cff-version: 1.2.0
+message: "If you use COGNAC, please cite the paper below."
+title: "COGNAC"
+version: 1.0.0
+license: MIT
+repository-code: "https://github.com/marco-hoffmann/COGNAC"
+authors:
+  - family-names: Hoffmann
+    given-names: Marco
+  - family-names: Schmitt
+    given-names: Sebastian
+  - family-names: Hasse
+    given-names: Hans
+  - family-names: Jirasek
+    given-names: Fabian
+preferred-citation:
+  type: article
+  title: "Machine-learned atomic interactions for local-composition thermodynamics"
+  authors:
+    - family-names: Hoffmann
+      given-names: Marco
+    - family-names: Schmitt
+      given-names: Sebastian
+    - family-names: Hasse
+      given-names: Hans
+    - family-names: Jirasek
+      given-names: Fabian
+  year: 2026
