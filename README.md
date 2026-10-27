@@ -2,7 +2,7 @@
 
 # COGNAC
 
-**Machine-learned atomic interactions for local-composition thermodynamics**
+**Learning atomic interactions for the thermodynamics of liquid mixtures**
 
 <!-- TODO: replace "#citation" with the arXiv URL once the preprint is online -->
 [![arXiv](https://img.shields.io/badge/arXiv-coming%20soon-b31b1b?logo=arxiv&logoColor=white)](#citation)
@@ -132,8 +132,8 @@ liquids of the elements H, B, C, N, O, F, Si, P, S, Cl, Br and I. Details: [docs
 
 If you use COGNAC, please cite
 
-> M. Hoffmann, S. Schmitt, H. Hasse, F. Jirasek. *Machine-learned atomic interactions for
-> local-composition thermodynamics* (2026). arXiv: coming soon.
+> M. Hoffmann, S. Schmitt, H. Hasse, F. Jirasek. *Learning atomic interactions for the
+> thermodynamics of liquid mixtures* (2026). arXiv: coming soon.
 
 ## License
 

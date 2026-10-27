@@ -15,7 +15,7 @@ authors:
     given-names: Fabian
 preferred-citation:
   type: article
-  title: "Machine-learned atomic interactions for local-composition thermodynamics"
+  title: "Learning atomic interactions for the thermodynamics of liquid mixtures"
   authors:
     - family-names: Hoffmann
       given-names: Marco
