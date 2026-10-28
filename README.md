@@ -4,8 +4,7 @@
 
 **Learning atomic interactions for the thermodynamics of liquid mixtures**
 
-<!-- TODO: replace "#citation" with the arXiv URL once the preprint is online -->
-[![arXiv](https://img.shields.io/badge/arXiv-coming%20soon-b31b1b?logo=arxiv&logoColor=white)](#citation)
+[![arXiv](https://img.shields.io/badge/arXiv-2610.36440-b31b1b?logo=arxiv&logoColor=white)](https://arxiv.org/abs/2610.36440)
 [![MLPROP](https://img.shields.io/badge/MLPROP-use%20COGNAC%20online-0b7a75)](https://ml-prop.mv.rptu.de)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![Python](https://img.shields.io/badge/python-%E2%89%A53.10-3776ab?logo=python&logoColor=white)](pyproject.toml)
@@ -133,7 +132,8 @@ liquids of the elements H, B, C, N, O, F, Si, P, S, Cl, Br and I. Details: [docs
 If you use COGNAC, please cite
 
 > M. Hoffmann, S. Schmitt, H. Hasse, F. Jirasek. *Learning atomic interactions for the
-> thermodynamics of liquid mixtures* (2026). arXiv: coming soon.
+> thermodynamics of liquid mixtures* (2026).
+> [arXiv:2610.36440](https://arxiv.org/abs/2610.36440)
 
 ## License
 
