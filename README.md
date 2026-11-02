@@ -59,9 +59,33 @@ pip install -e .
 python -c "import torch; print(torch.cuda.is_available())"             # should print True
 ```
 
-The two trained models (17 MB) come with the repository. `-e` installs COGNAC in
-editable mode: the code stays in this folder, so changes and `git pull` take effect
-without reinstalling.
+Typical install time on a normal desktop computer: about 2.6 minutes on Windows (CPU build of PyTorch) and 3.5 minutes on Linux (CUDA build).
+To check the installation, run `pip install -e ".[test]"` and `python -m pytest tests` (13 tests, about 6 s).
+
+## Demo
+
+Score a small demo data set with one row per data type
+([examples/demo.csv](examples/demo.csv); the values are illustrative, not measured).
+Your own binary data go in the same CSV layout, described in [docs/data_format.md](docs/data_format.md).
+
+```bash
+python -m cognac.predict --data examples/demo.csv --out demo_predictions.csv
+```
+
+Expected output, a table of mean absolute errors per data type (run time about 5 s on a desktop computer):
+
+```
+Datatype  rows  scored  MAE_rows  MAE_systems
+     ACT     1       1    0.0473       0.0473
+      HE     1       1    0.0035       0.0035
+     LLE     1       1    0.0075       0.0075
+     SLE     1       1    0.0173       0.0173
+     TPX     1       1    0.0488       0.0488
+    TPXY     1       1    0.0317       0.0317
+```
+
+The row-wise predictions are written to `demo_predictions.csv`.
+
 
 ## Quickstart
 
@@ -119,14 +143,6 @@ Both are the paper's full-data models, trained on about 820,000 experimental dat
 for binary mixtures from the Dortmund Data Bank. They cover organic molecules and ionic
 liquids of the elements H, B, C, N, O, F, Si, P, S, Cl, Br and I. Details: [docs/models.md](docs/models.md).
 
-## Documentation
-
-| | |
-|---|---|
-| [docs/usage.md](docs/usage.md) | predictions, phase equilibria and model insights |
-| [docs/data_format.md](docs/data_format.md) | the CSV layout for scoring a data set |
-| [docs/models.md](docs/models.md) | the shipped models, training data and verification |
-
 ## Citation
 
 If you use COGNAC, please cite
@@ -134,6 +150,16 @@ If you use COGNAC, please cite
 > M. Hoffmann, S. Schmitt, H. Hasse, F. Jirasek. *Learning atomic interactions for the
 > thermodynamics of liquid mixtures* (2026).
 > [arXiv:2610.36440](https://arxiv.org/abs/2610.36440)
+
+## System requirements
+
+| | |
+|---|---|
+| Operating system | Linux (tested: Rocky Linux 9.8, and Ubuntu via GitHub Actions) and Windows. macOS is untested. |
+| Python | ≥ 3.10 (tested: 3.11 on Linux) |
+| Dependencies | PyTorch, RDKit, NumPy, SciPy, pandas (declared in [pyproject.toml](pyproject.toml)) |
+| Tested versions | Linux: torch 2.9.0, rdkit 2025.09.5, numpy 2.4.2, scipy 1.17.0, pandas 3.0.1. Windows: torch 2.15.0 (CPU), rdkit 2026.9.1, numpy 2.5.4, scipy 1.18.1, pandas 3.1.0 |
+| Hardware | No special hardware. Predictions run on a CPU; a GPU only helps for large data sets. |
 
 ## License
 

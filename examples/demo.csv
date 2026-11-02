@@ -1,0 +1,7 @@
+Datatype,SMILES1,SMILES2,T_K,x1,ln_gamma1,ln_gamma2,p_bar,ps1_bar,ps2_bar,hE_kJ_mol,x1_phase1,x1_phase2
+TPXY,CCO,O,343.15,0.3,0.55,0.12,,,,,,
+TPX,CC(C)=O,CO,328.15,0.4,,,1.02,1.03,0.69,,,
+ACT,O,CCCCO,298.15,,,3.9,,,,,,
+HE,CCO,O,298.15,0.5,,,,,,-0.51,,
+LLE,CCCCO,O,298.15,,,,,,,,0.019,0.48
+SLE,c1ccc2ccccc2c1,c1ccccc1,298.15,0.29,0.04,,,,,,,
