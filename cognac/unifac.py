@@ -6,7 +6,10 @@
 
 The table comes from ``Predictor.unifac_table`` (a dict or its JSON file). These are
 the textbook equations with no neural network involved; for COGNAC they reproduce the
-model to float precision. The file depends on NumPy only and can be copied on its own.
+model to float precision. Tables of COGNAC-IMP (``"residual": "implicit"``) are evaluated with
+the self-consistent residual term instead, ln Gamma_k = Q_k g_k with
+g_k = -ln sum_m theta_m exp(g_m) Psi_mk, solved to convergence. The file depends on NumPy
+only and can be copied on its own.
 
     ln gamma_i   = ln gamma_i^C + ln gamma_i^R
     ln gamma_i^C = 1 - V'_i + ln V'_i - 5 q_i (1 - V_i/F_i + ln(V_i/F_i))
@@ -41,7 +44,10 @@ def _parameters(table: dict | str | Path):
     for i, molecule in enumerate(table["molecules"]):
         nu[i, molecule["groups"]] = 1.0
     a, b, c = (np.array(table[k], dtype=float) for k in ("a", "b", "c"))
-    return R, Q, nu, a, b, c
+    residual = table.get("residual", "explicit")
+    if residual not in ("explicit", "implicit"):
+        raise ValueError(f"unknown residual term {residual!r} in the parameter table")
+    return R, Q, nu, a, b, c, residual == "implicit"
 
 
 def _points(x) -> tuple[np.ndarray, bool]:
@@ -49,7 +55,22 @@ def _points(x) -> tuple[np.ndarray, bool]:
     return np.atleast_2d(x), x.ndim == 1
 
 
-def _residual(Q, nu, a, b, c, x: np.ndarray, T: float) -> tuple[np.ndarray, np.ndarray]:
+def _cosmospace(theta: np.ndarray, p: np.ndarray, damping: float = 0.7, tol: float = 1e-12, max_iter: int = 20000):
+    """g_k = -ln sum_m theta_m exp(g_m) Psi_mk by damped iteration from the explicit value ([P, groups])."""
+    S = theta @ p
+    g = 1.0 - np.log(S) - (theta / S) @ p.T
+    for _ in range(max_iter):
+        g_next = (1.0 - damping) * g - damping * np.log((theta * np.exp(g)) @ p)
+        done = np.abs(g_next - g).max() <= tol
+        g = g_next
+        if done:
+            return g
+    raise RuntimeError(f"the self-consistent residual term did not converge in {max_iter} iterations")
+
+
+def _residual(
+    Q, nu, a, b, c, x: np.ndarray, T: float, implicit: bool = False
+) -> tuple[np.ndarray, np.ndarray]:
     """Residual ln gamma_i and its temperature derivative, each [P, n]."""
     psi = np.exp(-(a + b * T + c * T**2) / T)
     dpsi = psi * (a / T**2 - c)  # dPsi/dT
@@ -58,6 +79,12 @@ def _residual(Q, nu, a, b, c, x: np.ndarray, T: float) -> tuple[np.ndarray, np.n
         theta = Q[groups] * X
         theta /= theta.sum(axis=1, keepdims=True)
         p, dp = psi[np.ix_(groups, groups)], dpsi[np.ix_(groups, groups)]
+        if implicit:  # slope by central difference (h = 0.01 K), no closed form
+
+            def at(t: float) -> np.ndarray:
+                return Q[groups] * _cosmospace(theta, np.exp(-(a + b * t + c * t**2) / t)[np.ix_(groups, groups)])
+
+            return at(T), (at(T + 0.01) - at(T - 0.01)) / 0.02
         S, dS = theta @ p, theta @ dp
         value = Q[groups] * (1.0 - np.log(S) - (theta / S) @ p.T)
         slope = Q[groups] * (-dS / S - (theta / S) @ dp.T + (theta * dS / S**2) @ p.T)
@@ -76,13 +103,13 @@ def _residual(Q, nu, a, b, c, x: np.ndarray, T: float) -> tuple[np.ndarray, np.n
 
 def ln_gamma(table: dict | str | Path, x, T: float) -> np.ndarray:
     """ln gamma of every component at mole fractions ``x`` ([n] or [P, n]) and ``T`` in K."""
-    R, Q, nu, a, b, c = _parameters(table)
+    R, Q, nu, a, b, c, implicit = _parameters(table)
     x, single = _points(x)
     r, q = nu @ R, nu @ Q
     V, F = r / (x @ r)[:, None], q / (x @ q)[:, None]
     V_dash = r**0.75 / (x @ r**0.75)[:, None]
     ln_c = 1.0 - V_dash + np.log(V_dash) - 5.0 * q * (1.0 - V / F + np.log(V / F))
-    out = ln_c + _residual(Q, nu, a, b, c, x, T)[0]
+    out = ln_c + _residual(Q, nu, a, b, c, x, T, implicit)[0]
     return out[0] if single else out
 
 
@@ -91,7 +118,7 @@ def excess_enthalpy(table: dict | str | Path, x, T: float) -> np.ndarray:
     d ln Gamma_k/dT = Q_k [-S'_k/S_k - sum_m theta_m (Psi'_km S_m - Psi_km S'_m) / S_m^2],
     S_k = sum_m theta_m Psi_mk, Psi'_mn = Psi_mn (a_mn/T^2 - c_mn). The combinatorial part
     does not depend on T."""
-    _, Q, nu, a, b, c = _parameters(table)
+    _, Q, nu, a, b, c, implicit = _parameters(table)
     x, single = _points(x)
-    h = -R_GAS * T**2 * (x * _residual(Q, nu, a, b, c, x, T)[1]).sum(axis=1)
+    h = -R_GAS * T**2 * (x * _residual(Q, nu, a, b, c, x, T, implicit)[1]).sum(axis=1)
     return h[0] if single else h

@@ -125,7 +125,9 @@ Every atom is one group that occurs once in its molecule; `a` (K), `b` (–) and
 are N × N matrices over all groups of the mixture, symmetric with a zero diagonal. The
 standard mod. UNIFAC equations with these parameters (Dortmund combinatorial term,
 z = 10) reproduce COGNAC to float precision (≤ 4e-6 in ln γ). COGNAC-IMP uses the same
-parameters in a self-consistent residual term, which standard implementations lack.
+parameters in a self-consistent residual term, which standard implementations lack; the table
+records it as `"residual": "implicit"`, and `cognac/unifac.py` then solves that term to
+convergence (agreement with the model about 2e-3 in ln γ, 3e-4 kJ/mol in hᴱ).
 
 `cognac/unifac.py` is such an implementation: the textbook equations in about 40 lines of
 NumPy, with no network involved. It needs nothing but NumPy, so the single file can be

@@ -60,7 +60,7 @@ python -c "import torch; print(torch.cuda.is_available())"             # should 
 ```
 
 Typical install time on a normal desktop computer: about 2.6 minutes on Windows (CPU build of PyTorch) and 3.5 minutes on Linux (CUDA build).
-To check the installation, run `pip install -e ".[test]"` and `python -m pytest tests` (13 tests, about 6 s).
+To check the installation, run `pip install -e ".[test]"` and `python -m pytest tests` (15 tests, about 6 s).
 
 ## Demo
 

@@ -83,9 +83,9 @@ def test_data_validation(tmp_path):
     assert df.Datatype[0] == "LLE" and df.x1_phase1[0] < df.x1_phase2[0]  # phase 1 is the one lean in component 1
 
 
-def test_unifac_table_reproduces_cognac(tmp_path):
-    """The exported table in the plain mod. UNIFAC equations (cognac.unifac) gives COGNAC."""
-    model = load_model("COGNAC")
+def test_unifac_table_reproduces_cognac(model, tmp_path):
+    """The exported table in the plain NumPy equations (cognac.unifac) gives the model, explicit or implicit."""
+    tol = {"COGNAC": 1e-4, "COGNAC-IMP": 2e-3}[model.name]  # the model's implicit solver stops loosely
     smiles = ["CC(C)=O", "O", "CCCCO"]
     model.unifac_table(smiles, tmp_path / "table.json")
     a = np.array(json.loads((tmp_path / "table.json").read_text())["a"])
@@ -93,9 +93,15 @@ def test_unifac_table_reproduces_cognac(tmp_path):
     x = np.array([[0.2, 0.5, 0.3], [0.05, 0.9, 0.05], [1.0, 0.0, 0.0]])
     for T in (280.0, 330.0):
         np.testing.assert_allclose(
-            unifac.ln_gamma(tmp_path / "table.json", x, T), model.ln_gamma(smiles, x, T), atol=1e-4
+            unifac.ln_gamma(tmp_path / "table.json", x, T), model.ln_gamma(smiles, x, T), atol=tol
         )
         h = unifac.excess_enthalpy(tmp_path / "table.json", x[:2], T)
-        np.testing.assert_allclose(h, model.excess_enthalpy(smiles, x[:2], T), atol=1e-4)
+        np.testing.assert_allclose(h, model.excess_enthalpy(smiles, x[:2], T), atol=tol)
         g = lambda t: (x[:2] * unifac.ln_gamma(tmp_path / "table.json", x[:2], t)).sum(1)  # noqa: E731
         np.testing.assert_allclose(h, -unifac.R_GAS * T**2 * (g(T + 1e-3) - g(T - 1e-3)) / 2e-3, atol=1e-6)
+
+
+def test_unifac_rejects_unknown_residual():
+    table = {"residual": "other", "groups": [], "molecules": [], "a": [], "b": [], "c": []}
+    with pytest.raises(ValueError, match="residual"):
+        unifac.ln_gamma(table, [1.0], 298.15)

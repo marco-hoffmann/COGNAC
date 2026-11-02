@@ -224,7 +224,8 @@ class Predictor:
         for Psi_mn = exp(-(a_mn + b_mn T + c_mn T^2) / T). With these, any mod. UNIFAC
         implementation (Dortmund combinatorial term, z = 10) reproduces COGNAC. COGNAC-IMP
         uses the same parameters in a self-consistent residual term, which a standard
-        implementation does not have.
+        implementation does not have; the table records it as ``"residual": "implicit"`` and
+        ``cognac.unifac`` solves that term.
         """
         s = self.state(smiles, 298.15)  # the coefficients do not depend on T
         n = s.Q.numel()
